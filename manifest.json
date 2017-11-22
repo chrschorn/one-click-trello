@@ -1,14 +1,20 @@
 {
   "manifest_version": 2,
 
-  "name": "Getting started example",
-  "description": "This extension allows the user to change the background color of the current page.",
+  "name": "One-click send to Trello",
+  "description": "This extension allows the user to send the current page to Trello with only one click.",
   "version": "1.0",
-
-  "browser_action": {
-    "default_icon": "icon.png",
-    "default_popup": "popup.html"
+  "background": {
+    "scripts": [
+      "js/lib/jquery-3.2.1.min.js",
+      "js/lib/trelloClient.js",
+      "js/eventPage.js"],
+    "persistent": false
   },
+  "browser_action": {
+    "default_icon": "icon.png"
+  },
+  "options_page": "settings.html",
   "permissions": [
     "activeTab",
     "storage"

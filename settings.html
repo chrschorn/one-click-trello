@@ -1,0 +1,42 @@
+<!doctype html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+<head>
+    <title>Getting Started Extension's Popup</title>
+    <style type="text/css">
+        body {
+            margin: 10px;
+            white-space: nowrap;
+        }
+
+        h1 {
+            font-size: 15px;
+        }
+
+        #container {
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+
+    <!--
+      - JavaScript and HTML must be in separate files
+    -->
+    <script src="js/lib/jquery-3.2.1.min.js"></script>
+    <script src="js/lib/trelloClient.js"></script>
+    <script src="js/settings.js"></script>
+</head>
+
+<body>
+<h1>Test</h1>
+<div id="container">
+    <button type="button" id="login">Login</button>
+    <button type="button" id="logout">Logout</button>
+</div>
+</body>
+</html>
