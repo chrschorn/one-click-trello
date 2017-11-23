@@ -1,6 +1,5 @@
 var $listSelect, $boardSelect;
-var savedBoardId, savedListId;
-var storage = chrome.storage.local;
+
 
 var login = function() {
     if (!trelloApi.tryAuthorize()) {
@@ -38,7 +37,7 @@ var loadBoards = function (savedId) {
             }
         });
         $boardSelect.prop('disabled', false);
-        loadLists($("#boardSelect option:selected").first(), (savedId == null ? null : savedListId) )
+        loadLists($("#boardSelect option:selected").first(), (savedId == null ? null : savedOptions.listId) )
     });
 };
 
@@ -65,21 +64,19 @@ var loadLists = function(boardOption, savedId) {
         });
         $listSelect.prop('disabled', false);
 
-        if (savedId != null) {
-            saveChoice();
-        }
+        saveChoice();
     });
 
 };
 
 var saveChoice = function() {
-    savedBoardId = $boardSelect.children('option:selected').first().data().id;
-    savedListId = $listSelect.children('option:selected').first().data().id;
+    savedOptions.boardId = $boardSelect.children('option:selected').first().data().id;
+    savedOptions.listId = $listSelect.children('option:selected').first().data().id;
 
-    chrome.storage.local.set({boardId: savedBoardId, listId: savedListId});
+    chrome.storage.local.set(savedOptions);
 
-    console.log(savedBoardId);
-    console.log(savedListId);
+    console.log(savedOptions.boardId);
+    console.log(savedOptions.listId);
 };
 
 
@@ -89,6 +86,7 @@ var init = function() {
 
     $boardSelect = $('#boardSelect');
     $listSelect = $('#listSelect');
+    var $autoClose = $('#autoClose');
 
     if (trelloApi.tryAuthorize()) {
         $boardSelect.change(function() {
@@ -97,20 +95,23 @@ var init = function() {
         $listSelect.change(function() {
             saveChoice();
         });
+        $autoClose.change(function() {
+            storage.set({autoClose: $autoClose.is(":checked")});
+        });
+
+        $autoClose.prop('checked', savedOptions.autoClose);
+
         $('main').toggle(true);
 
-        loadBoards(savedBoardId);
-
+        loadBoards(savedOptions.boardId);
     }
     update_buttons();
 };
 
 $(document).ready(function() {
     // try to recover saved items
-    storage.get(['boardId', 'listId'], function(ret) {
-        savedBoardId = ret.boardId;
-        savedListId = ret.listId;
-
+    storage.get(optionNames, function(ret) {
+        savedOptions = ret;
         init();
     });
 });
