@@ -4,39 +4,87 @@
  "browser_action" field in manifest.json contains the "default_popup" key with
  value "popup.html".
  -->
-<html>
+<html lang="en">
 <head>
-    <title>Getting Started Extension's Popup</title>
-    <style type="text/css">
-        body {
-            margin: 10px;
-            white-space: nowrap;
-        }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-        h1 {
-            font-size: 15px;
-        }
+    <title>One-click send to Trello - Settings</title>
 
-        #container {
-            align-items: center;
-            display: flex;
-            justify-content: space-between;
-        }
-    </style>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/settings.css" rel="stylesheet">
 
     <!--
       - JavaScript and HTML must be in separate files
     -->
     <script src="js/lib/jquery-3.2.1.min.js"></script>
+    <script src="js/lib/bootstrap.min.js"></script>
     <script src="js/lib/trelloClient.js"></script>
+    <script src="js/trelloWrapper.js"></script>
     <script src="js/settings.js"></script>
 </head>
 
 <body>
-<h1>Test</h1>
-<div id="container">
-    <button type="button" id="login">Login</button>
-    <button type="button" id="logout">Logout</button>
+
+<div class="container">
+    <header class="header clearfix">
+        <h3 class="text-muted">One-click send do Trello</h3>
+    </header>
+
+    <main role="main">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                Select where to save the current page...
+            </div>
+        </div>
+        <div id="select" class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md 3">
+                <label for="boardSelect">Boards</label>
+                <select class="form-control" id="boardSelect" disabled>
+                    <option>Loading...</option>
+                </select>
+            </div>
+            <!--<div class="col-md-2"></div>-->
+            <div class="col-md-3">
+                <label for="listSelect">Lists</label>
+                <select class="form-control" id="listSelect" disabled>
+                    <option>Loading...</option>
+                </select>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+
+        <div id="options" class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4 text-center">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" value="">
+                    Close tab on save
+                </label>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+
+    </main>
+
+    <div id="loginRow" class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-2 text-center">
+            <button type="button" id="login" class="btn btn-success btn-lg">Login</button>
+            <button type="button" id="logout" class="btn btn-secondary">Logout</button>
+        </div>
+        <div class="col-md-5"></div>
+    </div>
+
+    <footer class="footer">
+        <!-- <p>&copy; Company 2017</p> -->
+    </footer>
+
 </div>
+
 </body>
 </html>

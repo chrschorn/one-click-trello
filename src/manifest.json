@@ -8,6 +8,7 @@
     "scripts": [
       "js/lib/jquery-3.2.1.min.js",
       "js/lib/trelloClient.js",
+      "js/trelloWrapper.js",
       "js/eventPage.js"],
     "persistent": false
   },
