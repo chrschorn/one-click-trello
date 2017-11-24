@@ -26,6 +26,7 @@
     "chrome_style": false
   },
   "permissions": [
+    "notifications",
     "contextMenus",
     "activeTab",
     "storage"
