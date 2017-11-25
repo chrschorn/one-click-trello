@@ -1,8 +1,8 @@
 var lastCratedCard;
 
-var oneclickSendToTrello = function () {
+var oneclickSendToTrello = function (selectionText) {
     storage.get(optionNames, function(ret) {
-        options = ret;
+        var options = ret;
 
         if (!options.boardId || !options.listId) {
             chrome.runtime.openOptionsPage();
@@ -14,19 +14,55 @@ var oneclickSendToTrello = function () {
                 return
             }
             var tab = tabs[0];
+            var newCard = {
+                name: tab.title,
+                urlSource: tab.url,
+                idList: options.listId
+            };
 
-            Trello.post('cards', {name: tab.title, urlSource: tab.url, idList: options.listId}, function(card) {
-                // success
-                var message = "Title: " + card.name;
-                chrome.notifications.create('OCSTT', {title: "Card created!", message: message, iconUrl: "icon.png", type: "basic", buttons: [{title: 'Show card...'}, {title: 'Delete card'}]})
-                lastCratedCard = card;
-            });
-
-            if (options.autoClose) {
-                chrome.tabs.remove(tab.id, function(){});
+            if (selectionText) {
+                newCard.desc = selectionText;
             }
 
-            console.log("Created card?");
+            var showNotification = function(card, boardName, listName) {
+                var message = "Title: " + card.name;
+
+                if (boardName && listName) {
+                    message = 'Created card "' + card.name + '" on board "' + boardName + '" in list "' + listName + '".'
+                }
+
+                var newNotification = {
+                    title: "Card created!",
+                    message: message,
+                    iconUrl: "icons/icon256.png",
+                    type: "basic",
+                    buttons: [
+                        {title: 'Show card...', iconUrl: "icons/hand-o-right.png"},
+                        {title: 'Delete card', iconUrl: "icons/trash.png"}
+                    ]
+                };
+
+                chrome.notifications.create('OCSTT', newNotification, function() {
+                    setTimeout(function() {chrome.notifications.clear('OCSTT');}, 3500)
+                });
+
+                if (options.autoClose) {
+                    chrome.tabs.remove(tab.id, function(){});
+                }
+            };
+
+            Trello.post('cards', newCard, function(card) {
+                // success
+                lastCratedCard = card;
+
+                Trello.get('batch', {urls: ['/cards/' + card.id + '/board', '/cards/' + card.id + '/list']}, function(info) {
+                    var boardReply = info[0][200], listReply = info[1][200];
+                    showNotification(card, boardReply.name, listReply.name)
+                }, function() {
+                    showNotification(card);
+                });
+
+            });
         });
     });
 };
@@ -38,6 +74,7 @@ chrome.notifications.onButtonClicked.addListener(function(notificationId, button
         } else if (buttonIndex === 1) {
             Trello.put('cards/' + lastCratedCard.id, {closed: true})
         }
+
         chrome.notifications.clear(notificationId);
     }
 });
@@ -53,12 +90,13 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 chrome.runtime.onInstalled.addListener(function() {
     chrome.contextMenus.create({
         id: "OCSTT",
-        title: "Send to Trello"}
+        title: "Send to Trello",
+        contexts: ['page', 'selection']}
     );
 });
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
    if (info.menuItemId === "OCSTT") {
-       oneclickSendToTrello()
+       oneclickSendToTrello(info.selectionText)
    }
 });

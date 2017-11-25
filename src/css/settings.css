@@ -1,33 +1,19 @@
-/* Space out content a bit */
 body {
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-}/* Everything but the jumbotron gets side spacing for mobile first views */
-
-.header,
-.footer {
-  padding-right: 1rem;
-  padding-left: 1rem;
+    padding-top: 1.5rem;
+    padding-bottom: 0.5rem;
 }
 
-/* Custom page header */
 .header {
-  padding-bottom: 1rem;
-  border-bottom: .05rem solid #e5e5e5;
+    padding-bottom: 1rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    text-align: center;
 }
 
-/* Make the masthead heading the same height as the navigation */
 .header h3 {
-  margin-top: 0;
-  margin-bottom: 0;
-  line-height: 3rem;
-}
-
-/* Custom page footer */
-.footer {
-  padding-top: 1.5rem;
-  color: #777;
-  border-top: .05rem solid #e5e5e5;
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 3rem;
 }
 
 .container {
@@ -38,16 +24,17 @@ body {
     padding: 10px 0;
 }
 
-#loginRow {
-    padding-top: 50px;
-    padding-bottom: 20px;
+#saved {
+    opacity: 0;
 }
 
 main {
-    padding: 20px 0;
     display: none;
+    padding: 20px 0;
+    border-top: .05rem solid #e5e5e5;
+    border-bottom: .05rem solid #e5e5e5;
 }
 
 .container-narrow > hr {
-  margin: 2rem 0;
+    margin: 2rem 0;
 }

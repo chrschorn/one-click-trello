@@ -1,10 +1,11 @@
 var $listSelect, $boardSelect;
+var contentLoaded = false;
 
 
 var login = function() {
     if (!trelloApi.tryAuthorize()) {
         // couldn't authorize without prompt
-        trelloApi.authorizePrompt(update_buttons);
+        trelloApi.authorizePrompt();
     }
 };
 
@@ -45,7 +46,7 @@ var loadLists = function(boardOption, savedId) {
     $listSelect.prop('disabled', true);
     $listSelect.children('option').first().text('Loading...');
 
-    boardId = boardOption.data().id;
+    var boardId = boardOption.data().id;
 
     Trello.boards.get(boardId + '/lists', function(lists) {
         // success
@@ -74,9 +75,17 @@ var saveChoice = function() {
     savedOptions.listId = $listSelect.children('option:selected').first().data().id;
 
     chrome.storage.local.set(savedOptions);
+    if (contentLoaded) {
+        // only show "saved" when data was actually changed by the user
+        // saveChoice() is executed also every time the option menu is opened
+        flashSavedText();
+    }
 
-    console.log(savedOptions.boardId);
-    console.log(savedOptions.listId);
+    contentLoaded = true;
+};
+
+var flashSavedText = function() {
+    $('#saved').css('opacity', 1).fadeTo(1500, 0);
 };
 
 
@@ -97,14 +106,16 @@ var init = function() {
         });
         $autoClose.change(function() {
             storage.set({autoClose: $autoClose.is(":checked")});
+            flashSavedText();
         });
 
-        $autoClose.prop('checked', savedOptions.autoClose);
+        $autoClose.prop('checked', savedOptions.autoClose).prop('disabled', false);
 
         $('main').toggle(true);
 
         loadBoards(savedOptions.boardId);
     }
+
     update_buttons();
 };
 
