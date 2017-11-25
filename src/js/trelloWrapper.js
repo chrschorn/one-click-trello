@@ -9,6 +9,7 @@ var trelloApi = {
         return Trello.authorized()
     },
     authorized: Trello.authorized,
+    deauthorize: Trello.deauthorize,
     authorizePrompt: function(success) {
         Trello.setKey(this.key);
         Trello.authorize({

@@ -10,9 +10,13 @@ var login = function() {
 };
 
 var logout = function () {
-    Trello.deauthorize();
-    update_buttons();
-    $('main').toggle(false);
+    chrome.runtime.sendMessage({deauthorize: true}, function(response) {
+        if (response.success) {
+            trelloApi.deauthorize();
+            update_buttons();
+            $('main').toggle(false);
+        }
+    });
 };
 
 var update_buttons = function() {

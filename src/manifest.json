@@ -32,7 +32,8 @@
     "notifications",
     "contextMenus",
     "activeTab",
-    "storage"
+    "storage",
+    "sessions"
   ],
   "web_accessible_resources": [
     "icons/*.png",
