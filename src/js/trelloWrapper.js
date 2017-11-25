@@ -11,20 +11,18 @@ var trelloApi = {
     authorized: Trello.authorized,
     authorizePrompt: function(success) {
         Trello.setKey(this.key);
-        chrome.tabs.create({}, function() {
-            Trello.authorize({
-                type: 'redirect', // options: 'popup', 'redirect'
-                name: 'One-click send to Trello',
-                persist: true,
-                interactive: true,
-                scope: {
-                    read: true,
-                    write: true,
-                    account: false
-                },
-                expiration: 'never',
-                success: success
-            });
+        Trello.authorize({
+            type: 'redirect', // options: 'popup', 'redirect'
+            name: 'One-click send to Trello',
+            persist: true,
+            interactive: true,
+            scope: {
+                read: true,
+                write: true,
+                account: false
+            },
+            expiration: 'never',
+            success: success
         });
     }
 };

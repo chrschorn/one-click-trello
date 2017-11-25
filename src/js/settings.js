@@ -1,11 +1,11 @@
 var $listSelect, $boardSelect;
 var contentLoaded = false;
 
-
 var login = function() {
     if (!trelloApi.tryAuthorize()) {
         // couldn't authorize without prompt
-        trelloApi.authorizePrompt();
+        chrome.tabs.create({url: 'html/login.html'});
+        window.close();
     }
 };
 
@@ -21,13 +21,13 @@ var update_buttons = function() {
     $('#logout').toggle(authorized);
 };
 
-var loadBoards = function (savedId) {
+var loadBoards = function (savedBoardId, savedListId) {
     Trello.members.get("me/boards", function(boards) {
         // success
         var $boardSelect = $('#boardSelect');
         $boardSelect.empty();
         $.each(boards, function(i, board) {
-            if (board.id === savedId) {
+            if (board.id === savedBoardId) {
                 $boardSelect.append(
                     $('<option>' + board.name + '</option>').prop('selected', true).data({id: board.id})
                 );
@@ -38,7 +38,7 @@ var loadBoards = function (savedId) {
             }
         });
         $boardSelect.prop('disabled', false);
-        loadLists($("#boardSelect option:selected").first(), (savedId == null ? null : savedOptions.listId) )
+        loadLists($("#boardSelect option:selected").first(), (savedBoardId == null ? null : savedListId) )
     });
 };
 
@@ -71,10 +71,11 @@ var loadLists = function(boardOption, savedId) {
 };
 
 var saveChoice = function() {
-    savedOptions.boardId = $boardSelect.children('option:selected').first().data().id;
-    savedOptions.listId = $listSelect.children('option:selected').first().data().id;
+    storage.set({
+        boardId: $boardSelect.children('option:selected').first().data().id,
+        listId: $listSelect.children('option:selected').first().data().id
+    });
 
-    chrome.storage.local.set(savedOptions);
     if (contentLoaded) {
         // only show "saved" when data was actually changed by the user
         // saveChoice() is executed also every time the option menu is opened
@@ -85,17 +86,17 @@ var saveChoice = function() {
 };
 
 var flashSavedText = function() {
-    $('#saved').css('opacity', 1).fadeTo(1500, 0);
+    $('#saved').stop().css('opacity', 1).fadeTo(1500, 0);
 };
 
-
-var init = function() {
+var init = function(savedOptions) {
     $('#login').click(login);
     $('#logout').click(logout);
 
     $boardSelect = $('#boardSelect');
     $listSelect = $('#listSelect');
     var $autoClose = $('#autoClose');
+    var $showNotification = $('#showNotification');
 
     if (trelloApi.tryAuthorize()) {
         $boardSelect.change(function() {
@@ -108,21 +109,22 @@ var init = function() {
             storage.set({autoClose: $autoClose.is(":checked")});
             flashSavedText();
         });
+        $showNotification.change(function() {
+            storage.set({showNotification: $showNotification.is(":checked")});
+            flashSavedText();
+        });
 
         $autoClose.prop('checked', savedOptions.autoClose).prop('disabled', false);
+        $showNotification.prop('checked', savedOptions.showNotification).prop('disabled', false);
 
         $('main').toggle(true);
 
-        loadBoards(savedOptions.boardId);
+        loadBoards(savedOptions.boardId, savedOptions.listId);
     }
 
     update_buttons();
 };
 
 $(document).ready(function() {
-    // try to recover saved items
-    storage.get(optionNames, function(ret) {
-        savedOptions = ret;
-        init();
-    });
+    storage.loadOptions(init);
 });

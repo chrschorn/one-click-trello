@@ -1,9 +1,7 @@
 var lastCratedCard;
 
 var oneclickSendToTrello = function (selectionText) {
-    storage.get(optionNames, function(ret) {
-        var options = ret;
-
+    storage.loadOptions(function(options) {
         if (!options.boardId || !options.listId) {
             chrome.runtime.openOptionsPage();
             return
@@ -25,10 +23,14 @@ var oneclickSendToTrello = function (selectionText) {
             }
 
             var showNotification = function(card, boardName, listName) {
+                if (!options.showNotification) {
+                    return
+                }
+
                 var message = "Title: " + card.name;
 
                 if (boardName && listName) {
-                    message = 'Created card "' + card.name + '" on board "' + boardName + '" in list "' + listName + '".'
+                    message = 'Created card "' + card.name + '" in board "' + boardName + '" on list "' + listName + '".'
                 }
 
                 var newNotification = {
@@ -61,7 +63,6 @@ var oneclickSendToTrello = function (selectionText) {
                 }, function() {
                     showNotification(card);
                 });
-
             });
         });
     });

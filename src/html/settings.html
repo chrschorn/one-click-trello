@@ -1,24 +1,13 @@
 <!doctype html>
-<!--
- This page is shown when the extension button is clicked, because the
- "browser_action" field in manifest.json contains the "default_popup" key with
- value "popup.html".
- -->
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
 
     <title>One-click send to Trello - Settings</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/settings.css" rel="stylesheet">
 
-    <!--
-      - JavaScript and HTML must be in separate files
-    -->
     <script src="../js/lib/jquery-3.2.1.min.js"></script>
     <script src="../js/lib/popper.min.js"></script>
     <script src="../js/lib/bootstrap.min.js"></script>
@@ -31,13 +20,10 @@
 <body>
 
 <div class="container">
-    <header class="header clearfix">
-        <h3 class="text-muted">One-click send to Trello</h3>
-    </header>
-
     <main role="main">
         <div class="row">
-            <div class="col-12">
+            <div class="col-12"><h5>Save location</h5></div>
+            <div class="col-12 small">
                 Select where to save the current page when you click on the extension icon or the context menu button.
             </div>
         </div>
@@ -58,18 +44,16 @@
 
         <hr>
 
-        <div class="row">
-            <div class="col-12">
-                Other options
-            </div>
-        </div>
-
         <div id="options" class="row">
-            <div class="col-1"></div>
-            <div class="col-11">
+            <div class="col-12"><h5>Other options</h5></div>
+            <div class="col-12">
                 <label class="form-check-label">
                     <input id="autoClose" class="form-check-input" type="checkbox" value="" disabled>
-                    Close tab on save
+                    Close tab when card was created
+                </label>
+                <label class="form-check-label">
+                    <input id="showNotification" class="form-check-input" type="checkbox" value="" disabled>
+                    Show notification when card was created
                 </label>
             </div>
         </div>
