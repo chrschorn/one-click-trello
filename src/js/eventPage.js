@@ -2,29 +2,37 @@ var createdCards = {};
 var notificationMs = 4000;
 var contextMenuId = "OSCTT";
 
+
+var showError = function(notId, message) {
+    var info = {
+        title: "Unable to create card",
+        message: message,
+        iconUrl: "icons/icon256.png",
+        type: "basic"
+    };
+
+    chrome.notifications.update(notId, info, function(wasUpdated) {
+        if (!wasUpdated) {
+            chrome.notifications.create(notId, info, function() {
+                setTimeout(function() {chrome.notifications.clear(notId);}, notificationMs)
+            });
+        }
+    })
+};
+
+
+var resetTimeout = function(notificationId, notificationTimeout) {
+    clearTimeout(notificationTimeout);
+    return setTimeout(function() {chrome.notifications.clear(notificationId);}, notificationMs)
+};
+
+
 var oneClickSendToTrello = function (tab, selectionText) {
     storage.loadOptions(function(options) {
         if (!options.boardId || !options.listId) {
             chrome.runtime.openOptionsPage();
             return
         }
-
-        var showError = function(notId, message) {
-            var info = {
-                title: "Unable to create card",
-                message: message,
-                iconUrl: "icons/icon256.png",
-                type: "basic"
-            };
-
-            chrome.notifications.update(notId, info, function(wasUpdated) {
-                if (!wasUpdated) {
-                    chrome.notifications.create(notId, info, function() {
-                        setTimeout(function() {chrome.notifications.clear(notId);}, 3500)
-                    });
-                }
-            })
-        };
 
         if (options.autoClose) {
             chrome.tabs.remove(tab.id, function(){});
@@ -41,11 +49,11 @@ var oneClickSendToTrello = function (tab, selectionText) {
                 type: "basic"
             };
 
-            chrome.notifications.create(null, newNotification, function(notId) {
-                currentNotificationId = notId;
-                currentNotificationTimeout = setTimeout(function() {
-                    chrome.notifications.clear(currentNotificationId);
-                }, notificationMs)
+            var notificationPromise = new Promise(function(resolve, reject) {
+                chrome.notifications.create(null, newNotification, function(notId) {
+                    var notTimeout = resetTimeout(notId);
+                    resolve(notId, notTimeout);
+                });
             });
         }
 
@@ -61,7 +69,9 @@ var oneClickSendToTrello = function (tab, selectionText) {
 
         Trello.post('cards', newCard, function(card) {
             // success
-            createdCards[currentNotificationId] = card;
+            if (!options.showNotification) {
+                return
+            }
 
             Trello.get('batch', {urls: ['/cards/' + card.id + '/board', '/cards/' + card.id + '/list']}, function(info) {
                 var board = info[0][200], list = info[1][200];
@@ -74,27 +84,31 @@ var oneClickSendToTrello = function (tab, selectionText) {
                     ]
                 };
 
-                // update "premature" notification"
-                if (options.showNotification) {
-                    clearTimeout(currentNotificationTimeout);
+                notificationPromise.then(function(notId, notTimeout) {
+                    createdCards[notId] = card;
 
-                    chrome.notifications.update(currentNotificationId, updatedInfo, function(wasUpdated) {
+                    // update "premature" notification"
+                    chrome.notifications.update(notId, updatedInfo, function(wasUpdated) {
                         if (wasUpdated) {
-                            setTimeout(function() {chrome.notifications.clear(currentNotificationId);}, notificationMs)
+                            resetTimeout(notId, notTimeout);
                         }
                     });
-                }
+                });
+
             });
         }, function(response) {
-            // error in card creation
-            showError((response.status !== 0 ? "Error: " + response.responseText : ""));
-
             // try to recover the tab, only try it on the last session that was closed
             // otherwise it might restore an unrelated session
             chrome.sessions.getRecentlyClosed({maxResults: 1}, function(sessions) {
                 if (sessions.length > 0 && sessions[0].tab && sessions[0].tab.index === tab.index) {
                     chrome.sessions.restore(sessions[0].tab.sessionId);
                 }
+            });
+
+            // error in card creation
+            notificationPromise.then(function(notId, notTimeout) {
+                resetTimeout(notId, notTimeout);
+                showError(notId, (response.status !== 0 ? "Error: " + response.responseText : ""));
             });
         });
     });
