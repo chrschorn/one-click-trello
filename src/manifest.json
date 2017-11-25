@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "One-click send to Trello",
-  "description": "This extension allows the user to send the current page to Trello with only one click.",
-  "version": "1.0",
+  "description": "Save the current page with only one click on the extension button.",
+  "version": "1.0.0",
   "background": {
     "scripts": [
       "js/lib/jquery-3.2.1.min.js",
