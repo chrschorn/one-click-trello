@@ -68,10 +68,12 @@ var oneClickSendToTrello = function (tab, contextInfo) {
         };
 
         // check contextInfo
-        if (contextInfo.selectionText) {
-            newCard.desc = contextInfo.selectionText;
-        } else if (contextInfo.mediaType === 'image') {
-            // todo: attach clicked image as attachment (needs a separate Trello api post)
+        if (contextInfo) {
+            if (contextInfo.selectionText) {
+                newCard.desc = contextInfo.selectionText;
+            } else if (contextInfo.mediaType === 'image') {
+                // todo: attach clicked image as attachment (needs a separate Trello api post)
+            }
         }
 
         Trello.post('cards', newCard, function(card) {
