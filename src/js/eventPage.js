@@ -3,27 +3,24 @@ var notificationMs = 4000;
 var contextMenuId = "OSCTT";
 
 
-var showError = function(notId, message) {
-    var info = {
-        title: "Unable to create card",
-        message: message,
-        iconUrl: "icons/icon256.png",
-        type: "basic"
-    };
-
-    chrome.notifications.update(notId, info, function(wasUpdated) {
-        if (!wasUpdated) {
-            chrome.notifications.create(notId, info, function() {
-                setTimeout(function() {chrome.notifications.clear(notId);}, notificationMs)
-            });
-        }
-    })
-};
-
-
 var resetTimeout = function(notificationId, notificationTimeout) {
     clearTimeout(notificationTimeout);
     return setTimeout(function() {chrome.notifications.clear(notificationId);}, notificationMs)
+};
+
+
+var updatePromisedNotification = function(notificationPromise, content) {
+    // return a new promise, mainly passing the updated timeout to the resolve function
+    return new Promise(function(resolve, reject) {
+        notificationPromise.then(function(notInfo) {
+            chrome.notifications.update(notInfo.id, content, function(wasUpdated) {
+                if (wasUpdated) {
+                    notInfo.timeout = resetTimeout(notInfo.id, notInfo.timeout);
+                }
+                resolve(notInfo);
+            });
+        });
+    })
 };
 
 
@@ -56,7 +53,7 @@ var oneClickSendToTrello = function (tab, contextInfo) {
             var notificationPromise = new Promise(function(resolve, reject) {
                 chrome.notifications.create(null, newNotification, function(notId) {
                     var notTimeout = resetTimeout(notId);
-                    resolve(notId, notTimeout);
+                    resolve({id: notId, timeout: notTimeout});
                 });
             });
         }
@@ -82,28 +79,26 @@ var oneClickSendToTrello = function (tab, contextInfo) {
                 return
             }
 
+            notificationPromise = notificationPromise.then(function(notInfo) {
+                createdCards[notInfo.id] = card;
+                return notInfo;
+            });
+
+            // update early notification with buttons
+            notificationPromise = updatePromisedNotification(notificationPromise, {
+                buttons: [
+                    {title: 'Show card...', iconUrl: "icons/hand-o-right.png"},
+                    {title: 'Delete card', iconUrl: "icons/trash.png"}
+                ]
+            });
+
             Trello.get('batch', {urls: ['/cards/' + card.id + '/board', '/cards/' + card.id + '/list']}, function(info) {
                 var board = info[0][200], list = info[1][200];
 
-                var updatedInfo = {
+                // update notification with exact board/list information
+                notificationPromise = updatePromisedNotification(notificationPromise, {
                     message: 'Created card "' + card.name + '" in board "' + board.name + '" on list "' + list.name + '".',
-                    buttons: [
-                        {title: 'Show card...', iconUrl: "icons/hand-o-right.png"},
-                        {title: 'Delete card', iconUrl: "icons/trash.png"}
-                    ]
-                };
-
-                notificationPromise.then(function(notId, notTimeout) {
-                    createdCards[notId] = card;
-
-                    // update "premature" notification"
-                    chrome.notifications.update(notId, updatedInfo, function(wasUpdated) {
-                        if (wasUpdated) {
-                            resetTimeout(notId, notTimeout);
-                        }
-                    });
                 });
-
             });
         }, function(response) {
             if (options.autoClose) {
@@ -116,15 +111,18 @@ var oneClickSendToTrello = function (tab, contextInfo) {
                 });
             }
 
-            // error in card creation
-            notificationPromise.then(function(notId, notTimeout) {
-                resetTimeout(notId, notTimeout);
-                showError(notId, (response.status !== 0 ? "Error: " + response.responseText : ""));
+            // notify of error in card creation
+            notificationPromise = updatePromisedNotification(notificationPromise, {
+                title: "Failed to create card!",
+                message: (response.responseText ? "Error: " + response.responseText : ""),
+                buttons: []
             });
         });
     });
 };
 
+
+// listener for notification clicks
 chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
     var card = createdCards[notificationId];
 
@@ -145,6 +143,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
     oneClickSendToTrello(tab);
 });
 
+
 // add context menu item
 chrome.runtime.onInstalled.addListener(function() {
     chrome.contextMenus.create({
@@ -154,12 +153,14 @@ chrome.runtime.onInstalled.addListener(function() {
     );
 });
 
+
 // listen to context menu
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
    if (info.menuItemId === contextMenuId) {
        oneClickSendToTrello(tab, info);
    }
 });
+
 
 // logout here if triggered in options menu
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -171,3 +172,4 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
     }
 });
+
