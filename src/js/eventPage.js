@@ -27,7 +27,7 @@ var resetTimeout = function(notificationId, notificationTimeout) {
 };
 
 
-var oneClickSendToTrello = function (tab, selectionText) {
+var oneClickSendToTrello = function (tab, contextInfo) {
     // try to login, if not possible: open options page to login
     if (!trelloApi.tryAuthorize()) {
         chrome.runtime.openOptionsPage();
@@ -67,8 +67,11 @@ var oneClickSendToTrello = function (tab, selectionText) {
             idList: options.listId
         };
 
-        if (selectionText) {
-            newCard.desc = selectionText;
+        // check contextInfo
+        if (contextInfo.selectionText) {
+            newCard.desc = contextInfo.selectionText;
+        } else if (contextInfo.mediaType === 'image') {
+            // todo: attach clicked image as attachment (needs a separate Trello api post)
         }
 
         Trello.post('cards', newCard, function(card) {
@@ -145,14 +148,14 @@ chrome.runtime.onInstalled.addListener(function() {
     chrome.contextMenus.create({
         id: contextMenuId,
         title: "Send to Trello",
-        contexts: ['page', 'selection']}
+        contexts: ['all']}
     );
 });
 
 // listen to context menu
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
    if (info.menuItemId === contextMenuId) {
-       oneClickSendToTrello(tab, info.selectionText)
+       oneClickSendToTrello(tab, info);
    }
 });
 
