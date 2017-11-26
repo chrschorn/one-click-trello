@@ -28,8 +28,15 @@ var resetTimeout = function(notificationId, notificationTimeout) {
 
 
 var oneClickSendToTrello = function (tab, selectionText) {
+    // try to login, if not possible: open options page to login
+    if (!trelloApi.tryAuthorize()) {
+        chrome.runtime.openOptionsPage();
+        return
+    }
+
     storage.loadOptions(function(options) {
         if (!options.boardId || !options.listId) {
+            // for some reason, boardId and listId was not set -> options page
             chrome.runtime.openOptionsPage();
             return
         }
@@ -37,9 +44,6 @@ var oneClickSendToTrello = function (tab, selectionText) {
         if (options.autoClose) {
             chrome.tabs.remove(tab.id, function(){});
         }
-
-        var currentNotificationId;  // for updating the current notification once card was created
-        var currentNotificationTimeout;  // for restarting the timeout on notification update
 
         if (options.showNotification) {
             var newNotification = {
@@ -97,13 +101,15 @@ var oneClickSendToTrello = function (tab, selectionText) {
 
             });
         }, function(response) {
-            // try to recover the tab, only try it on the last session that was closed
-            // otherwise it might restore an unrelated session
-            chrome.sessions.getRecentlyClosed({maxResults: 1}, function(sessions) {
-                if (sessions.length > 0 && sessions[0].tab && sessions[0].tab.index === tab.index) {
-                    chrome.sessions.restore(sessions[0].tab.sessionId);
-                }
-            });
+            if (options.autoClose) {
+                // try to recover the tab, only try it on the last session that was closed
+                // otherwise it might restore an unrelated session
+                chrome.sessions.getRecentlyClosed({maxResults: 1}, function (sessions) {
+                    if (sessions.length > 0 && sessions[0].tab && sessions[0].tab.index === tab.index) {
+                        chrome.sessions.restore(sessions[0].tab.sessionId);
+                    }
+                });
+            }
 
             // error in card creation
             notificationPromise.then(function(notId, notTimeout) {
@@ -128,13 +134,10 @@ chrome.notifications.onButtonClicked.addListener(function(notificationId, button
     }
 });
 
+
 // handle extension button click
 chrome.browserAction.onClicked.addListener(function(tab) {
-    if (!trelloApi.tryAuthorize()) {
-        chrome.runtime.openOptionsPage();
-    } else {
-        oneClickSendToTrello(tab)
-    }
+    oneClickSendToTrello(tab);
 });
 
 // add context menu item
