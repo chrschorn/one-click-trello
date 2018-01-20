@@ -26,7 +26,7 @@
   },
   "options_ui": {
     "page": "html/settings.html",
-    "chrome_style": false
+    "chrome_style": true
   },
   "permissions": [
     "notifications",

@@ -27,16 +27,18 @@
                 Select where to save the current page when you click on the extension icon or the context menu button.
             </div>
         </div>
-        <div id="select" class="row">
+
+        <div class="row">
             <div class="col-6">
                 <label for="boardSelect">Board</label>
-                <select class="form-control" id="boardSelect" disabled>
+                <select class="" id="boardSelect" disabled>
                     <option>Loading...</option>
                 </select>
             </div>
+
             <div class="col-6">
                 <label for="listSelect">List</label>
-                <select class="form-control" id="listSelect" disabled>
+                <select class="" id="listSelect" disabled>
                     <option>Loading...</option>
                 </select>
             </div>
@@ -47,34 +49,22 @@
         <div id="options" class="row">
             <div class="col-12"><h5>Other options</h5></div>
             <div class="col-12">
-                <label class="form-check-label">
-                    <input id="autoClose" class="form-check-input" type="checkbox" value="" disabled>
-                    Close tab when card was created
-                </label>
-                <label class="form-check-label">
-                    <input id="showNotification" class="form-check-input" type="checkbox" value="" disabled>
-                    Show notification when card was created
-                </label>
+                <label><input id="autoClose" class="" type="checkbox" value="" disabled> Close tab when card was created</label>
+                <label><input id="showNotification" class="" type="checkbox" value="" disabled> Show notification when card was created</label>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-4"></div>
-            <div id="saved" class="col-md-4 text-center">
-                Saved!
-            </div>
-            <div class="col-md-4"></div>
+        <div id="saved" class="alert alert-success">
+            <strong>Saved!</strong>
         </div>
 
     </main>
 
     <div id="loginRow" class="row">
-        <div class="col-md-5"></div>
-        <div class="col-md-2 text-center">
-            <button type="button" id="login" class="btn btn-success btn-lg">Login</button>
-            <button type="button" id="logout" class="btn btn-secondary btn-sm">Logout</button>
+        <div class="col-4 offset-4 text-center">
+            <button type="button" id="login">Login</button>
+            <button type="button" id="logout">Logout</button>
         </div>
-        <div class="col-md-5"></div>
     </div>
 </div>
 

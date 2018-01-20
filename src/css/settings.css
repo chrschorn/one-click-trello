@@ -1,3 +1,20 @@
+body {
+    min-width: 450px;
+}
+
+select {
+    display: block;
+    width: 100%;
+}
+
+input[type=checkbox] {
+    margin-bottom: 3px;
+}
+
+#login {
+    padding: 10px 25px;
+}
+
 .header {
     padding-bottom: 0.25rem;
     padding-right: 1rem;
