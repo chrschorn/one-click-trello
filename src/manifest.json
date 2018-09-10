@@ -36,7 +36,6 @@
     "sessions"
   ],
   "web_accessible_resources": [
-    "icons/*.png",
-    "*.png"
+    "html/login.html"
   ]
 }
