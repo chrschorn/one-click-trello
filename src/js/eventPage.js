@@ -47,7 +47,11 @@ var oneClickSendToTrello = function (tab, contextInfo) {
                 title: "Trello card created!",
                 message: 'Created card "' + tab.title + '".',
                 iconUrl: "icons/icon256.png",
-                type: "basic"
+                type: "basic",
+                buttons: [
+                    {title: 'Show card...', iconUrl: "icons/hand-o-right.png"},
+                    {title: 'Delete card', iconUrl: "icons/trash.png"}
+                ]
             };
 
             var notificationPromise = new Promise(function(resolve, reject) {
@@ -84,22 +88,23 @@ var oneClickSendToTrello = function (tab, contextInfo) {
                 return notInfo;
             });
 
-            // update early notification with buttons
-            notificationPromise = updatePromisedNotification(notificationPromise, {
-                buttons: [
-                    {title: 'Show card...', iconUrl: "icons/hand-o-right.png"},
-                    {title: 'Delete card', iconUrl: "icons/trash.png"}
-                ]
-            });
-
-            Trello.get('batch', {urls: ['/cards/' + card.id + '/board', '/cards/' + card.id + '/list']}, function(info) {
-                var board = info[0][200], list = info[1][200];
-
-                // update notification with exact board/list information
-                notificationPromise = updatePromisedNotification(notificationPromise, {
-                    message: 'Created card "' + card.name + '" in board "' + board.name + '" on list "' + list.name + '".',
-                });
-            });
+            // any sort of update to the notification seems to destroy any button functionality under windows 10 native notifications, thus every update information is removed
+            // // update early notification with buttons
+            // notificationPromise = updatePromisedNotification(notificationPromise, {
+            //     buttons: [
+            //         {title: 'Show card...', iconUrl: "icons/hand-o-right.png"},
+            //         {title: 'Delete card', iconUrl: "icons/trash.png"}
+            //     ]
+            // });
+            //
+            // Trello.get('batch', {urls: ['/cards/' + card.id + '/board', '/cards/' + card.id + '/list']}, function(info) {
+            //     var board = info[0][200], list = info[1][200];
+            //
+            //     // update notification with exact board/list information
+            //     notificationPromise = updatePromisedNotification(notificationPromise, {
+            //         message: 'Created card "' + card.name + '" in board "' + board.name + '" on list "' + list.name + '".',
+            //     });
+            // });
         }, function(response) {
             if (options.autoClose) {
                 // try to recover the tab, only try it on the last session that was closed
@@ -123,7 +128,9 @@ var oneClickSendToTrello = function (tab, contextInfo) {
 
 
 // listener for notification clicks
-chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+buttonListener = function(notificationId, buttonIndex, retries) {
+    if (typeof(retries)==='undefined') retries = 0;
+
     var card = createdCards[notificationId];
 
     if (card) {
@@ -132,10 +139,14 @@ chrome.notifications.onButtonClicked.addListener(function(notificationId, button
         } else if (buttonIndex === 1) {
             Trello.put('cards/' + card.id, {closed: true})
         }
-
-        chrome.notifications.clear(notificationId);
+        //setTimeout(function(){chrome.notifications.clear(notificationId)}, 500);
+    } else if (retries < 3) {
+        // card could still be processing since the button has to be displayed immediately with Win10 native notifications
+        // retry after a few ms
+        setTimeout(function(){buttonListener(notificationId, buttonIndex, retries+1)}, 500)
     }
-});
+};
+chrome.notifications.onButtonClicked.addListener(buttonListener);
 
 
 // handle extension button click
