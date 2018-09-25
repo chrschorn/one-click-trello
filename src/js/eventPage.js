@@ -136,11 +136,12 @@ buttonListener = function(notificationId, buttonIndex, retries) {
     if (card) {
         if (buttonIndex === 0) {
             chrome.tabs.create({url: card.url});
+            chrome.notifications.clear(notificationId);
         } else if (buttonIndex === 1) {
-            Trello.put('cards/' + card.id, {closed: true})
+            Trello.put('cards/' + card.id, {closed: true});
+            chrome.notifications.clear(notificationId);
         }
         //setTimeout(function(){chrome.notifications.clear(notificationId)}, 500);
-        // chrome.notifications.clear(notificationId);
     } else if (retries < 3) {
         // card could still be processing since the button has to be displayed immediately with Win10 native notifications
         // retry after a few ms
