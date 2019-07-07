@@ -101,6 +101,7 @@ var init = function(savedOptions) {
     $listSelect = $('#listSelect');
     var $autoClose = $('#autoClose');
     var $showNotification = $('#showNotification');
+    var $selectionAsTitle = $('#selectionAsTitle');
 
     if (trelloApi.tryAuthorize()) {
         $boardSelect.change(function() {
@@ -117,9 +118,14 @@ var init = function(savedOptions) {
             storage.set({showNotification: $showNotification.is(":checked")});
             flashSavedText();
         });
+        $selectionAsTitle.change(function() {
+            storage.set({selectionAsTitle: $selectionAsTitle.is(":checked")});
+            flashSavedText();
+        })
 
         $autoClose.prop('checked', savedOptions.autoClose).prop('disabled', false);
         $showNotification.prop('checked', savedOptions.showNotification).prop('disabled', false);
+        $selectionAsTitle.prop('checked', savedOptions.showNotification).prop('disabled', false);
 
         $('main').toggle(true);
 

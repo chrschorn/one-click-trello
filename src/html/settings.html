@@ -22,8 +22,8 @@
 <div class="container">
     <main role="main">
         <div class="row">
-            <div class="col-12"><h5>Save location</h5></div>
-            <div class="col-12 small">
+            <div class="col-12"><h1>Save location</h1></div>
+            <div class="col-12">
                 Select where to save the current page when you click on the extension icon or the context menu button.
             </div>
         </div>
@@ -46,11 +46,20 @@
 
         <hr>
 
-        <div id="options" class="row">
-            <div class="col-12"><h5>Other options</h5></div>
+        <div class="row">
             <div class="col-12">
-                <label><input id="autoClose" class="" type="checkbox" value="" disabled> Close tab when card was created</label>
-                <label><input id="showNotification" class="" type="checkbox" value="" disabled> Show notification when card was created</label>
+                <h1>Settings</h1>
+
+                <div class="row">
+                    <div class="col-12"><h2>On card creation</h2></div>
+                    <div class="col-12"><label><input id="autoClose" class="" type="checkbox" value="" disabled> Close the tab</label></div>
+                    <div class="col-12"><label><input id="showNotification" class="" type="checkbox" value="" disabled> Show a confirmation notification</label></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12"><h2>Right-click / context menu</h2></div>
+                    <div class="col-12"><label><input id="selectionAsTitle" class="" type="checkbox" value="" disabled> Use selected text as the card title</label></div>
+                </div>
             </div>
         </div>
 

@@ -28,24 +28,39 @@ var oneClickSendToTrello = function (tab, contextInfo) {
     // try to login, if not possible: open options page to login
     if (!trelloApi.tryAuthorize()) {
         chrome.runtime.openOptionsPage();
-        return
+        return;
     }
 
     storage.loadOptions(function(options) {
         if (!options.boardId || !options.listId) {
             // for some reason, boardId and listId was not set -> options page
             chrome.runtime.openOptionsPage();
-            return
+            return;
         }
+
+        var newCard = {
+            name: tab.title,
+            urlSource: tab.url,
+            idList: options.listId
+        };
 
         if (options.autoClose) {
             chrome.tabs.remove(tab.id, function(){});
         }
 
+        // check contextInfo
+        if (contextInfo && contextInfo.selectionText) {
+            if (options.selectionAsTitle) {
+                newCard.name = contextInfo.selectionText;
+            } else {
+                newCard.desc = contextInfo.selectionText;
+            }
+        }
+
         if (options.showNotification) {
             var newNotification = {
                 title: "Trello card created!",
-                message: 'Created card "' + tab.title + '".',
+                message: 'Created card "' + newCard.name + '".',
                 iconUrl: "icons/icon256.png",
                 type: "basic",
                 buttons: [
@@ -62,31 +77,20 @@ var oneClickSendToTrello = function (tab, contextInfo) {
             });
         }
 
-        var newCard = {
-            name: tab.title,
-            urlSource: tab.url,
-            idList: options.listId
-        };
-
-        // check contextInfo
-        if (contextInfo) {
-            if (contextInfo.selectionText) {
-                newCard.desc = contextInfo.selectionText;
-            } else if (contextInfo.mediaType === 'image') {
-                // todo: attach clicked image as attachment (needs a separate Trello api post)
-            }
-        }
-
         Trello.post('cards', newCard, function(card) {
             // success
-            if (!options.showNotification) {
-                return
+            if (contextInfo && contextInfo.mediaType === 'image') {
+                if (contextInfo.srcUrl.startsWith("http://") || contextInfo.srcUrl.startsWith("https://")) {
+                    Trello.post('cards/' + card.id + '/attachments', {url: contextInfo.srcUrl});
+                }
             }
 
-            notificationPromise = notificationPromise.then(function(notInfo) {
-                createdCards[notInfo.id] = card;
-                return notInfo;
-            });
+            if (options.showNotification) {
+                notificationPromise = notificationPromise.then(function(notInfo) {
+                    createdCards[notInfo.id] = card;
+                    return notInfo;
+                });
+            }
 
             // any sort of update to the notification seems to destroy any button functionality under windows 10 native notifications, thus every update information is removed
             // // update early notification with buttons
@@ -141,8 +145,7 @@ buttonListener = function(notificationId, buttonIndex, retries) {
             Trello.put('cards/' + card.id, {closed: true});
             chrome.notifications.clear(notificationId);
         }
-        //setTimeout(function(){chrome.notifications.clear(notificationId)}, 500);
-    } else if (retries < 3) {
+    } else if (retries < 10) {
         // card could still be processing since the button has to be displayed immediately with Win10 native notifications
         // retry after a few ms
         setTimeout(function(){buttonListener(notificationId, buttonIndex, retries+1)}, 500)
@@ -162,14 +165,24 @@ chrome.runtime.onInstalled.addListener(function() {
     chrome.contextMenus.create({
         id: contextMenuId,
         title: "Send to Trello",
-        contexts: ['all']}
+        contexts: ["page", "frame", "link", "editable", "video", "audio", "browser_action", "page_action"]}
+    );
+    chrome.contextMenus.create({
+        id: contextMenuId + "Selection",
+        title: "Send selection to Trello",
+        contexts: ["selection"]}
+    );
+    chrome.contextMenus.create({
+        id: contextMenuId + "Image",
+        title: "Send image to Trello",
+        contexts: ["image"]}
     );
 });
 
 
 // listen to context menu
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-   if (info.menuItemId === contextMenuId) {
+   if (info.menuItemId.startsWith(contextMenuId)) {
        oneClickSendToTrello(tab, info);
    }
 });
@@ -185,4 +198,3 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
     }
 });
-

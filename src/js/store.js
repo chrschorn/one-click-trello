@@ -1,7 +1,7 @@
 var storage = {
     location: chrome.storage.local,
-    optionNames: ['boardId', 'listId', 'autoClose', 'showNotification'],
-    defaults: {autoClose: false, showNotification: true},
+    optionNames: ['boardId', 'listId', 'autoClose', 'showNotification', 'selectionAsTitle'],
+    defaults: {autoClose: false, showNotification: true, selectionAsTitle: true},
     set: function(obj, callback) {
         this.location.set(obj, callback);
     },

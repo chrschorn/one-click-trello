@@ -40,12 +40,21 @@ input[type=checkbox] {
     opacity: 0;
 }
 
+h1 {
+    font-size: 1.3rem;
+}
+
+h2 {
+    font-size: 1.10rem;
+}
+
 main {
     display: none;
     padding: 5px 0;
     border-bottom: .05rem solid #e5e5e5;
+    font-size: 0.9rem;
 }
-
-.container-narrow > hr {
-    margin: 2rem 0;
-}
+ main hr {
+     margin-top: 0.5rem;
+     margin-bottom: 0.5rem;
+ }
