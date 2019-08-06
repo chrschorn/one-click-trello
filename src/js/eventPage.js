@@ -9,21 +9,6 @@ var resetNotificationTimeout = function(notificationId, notificationTimeout) {
 };
 
 
-var updatePromisedNotification = function(notificationPromise, content) {
-    // return a new promise, mainly passing the updated timeout to the resolve function
-    return new Promise(function(resolve, reject) {
-        notificationPromise.then(function(notInfo) {
-            chrome.notifications.update(notInfo.id, content, function(wasUpdated) {
-                if (wasUpdated) {
-                    notInfo.timeout = resetNotificationTimeout(notInfo.id, notInfo.timeout);
-                }
-                resolve(notInfo);
-            });
-        });
-    })
-};
-
-
 function defer() {
 	var res, rej;
 
@@ -112,9 +97,7 @@ var oneClickSendToTrello = function (tab, contextInfo) {
                 }
             }
 
-            if (options.showNotification) {
-                cardPromise.resolve(card);
-            }
+            cardPromise.resolve(card);
         }, function(response) {
             if (options.autoClose) {
                 // try to recover the tab, only try it on the last session that was closed
@@ -179,12 +162,11 @@ chrome.runtime.onInstalled.addListener(function() {
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
     if (info.menuItemId == contextMenuId + "Selection") {
         chrome.tabs.executeScript(tab.id, {code: 'window.getSelection().toString()'}, function(result) {
-            console.log("Error: " + chrome.runtime.lastError);
             if (!chrome.runtime.lastError && result[0].length > 0) {
                 info.selectionText = result[0];
             }
+
             info.selectionText = info.selectionText.replace(/(\r\n|\n|\r)/gm, "\n\n");
-            console.log(info.selectionText);
             oneClickSendToTrello(tab, info);
         });
     } else if (info.menuItemId.startsWith(contextMenuId)) {
