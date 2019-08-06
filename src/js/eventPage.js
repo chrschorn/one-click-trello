@@ -182,9 +182,17 @@ chrome.runtime.onInstalled.addListener(function() {
 
 // listen to context menu
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-   if (info.menuItemId.startsWith(contextMenuId)) {
-       oneClickSendToTrello(tab, info);
-   }
+    if (info.menuItemId == contextMenuId + "Selection") {
+        chrome.tabs.executeScript(tab.id, {code: 'window.getSelection().toString()'}, function(result) {
+            console.log("Error: " + chrome.runtime.lastError);
+            if (!chrome.runtime.lastError && result[0].length > 0) {
+                info.selectionText = result[0];
+            }
+            oneClickSendToTrello(tab, info);
+        });
+    } else if (info.menuItemId.startsWith(contextMenuId)) {
+        oneClickSendToTrello(tab, info);
+    }
 });
 
 
@@ -195,6 +203,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (request.deauthorize) {
             trelloApi.deauthorize();
             sendResponse({success: true})
+        } else if (request.selection) {
+            oneClickSendToTrello()
         }
     }
 });
