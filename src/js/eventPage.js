@@ -3,7 +3,7 @@ var notificationMs = 4000;
 var contextMenuId = "OSCTT";
 
 
-var resetTimeout = function(notificationId, notificationTimeout) {
+var resetNotificationTimeout = function(notificationId, notificationTimeout) {
     clearTimeout(notificationTimeout);
     return setTimeout(function() {chrome.notifications.clear(notificationId);}, notificationMs)
 };
@@ -15,13 +15,28 @@ var updatePromisedNotification = function(notificationPromise, content) {
         notificationPromise.then(function(notInfo) {
             chrome.notifications.update(notInfo.id, content, function(wasUpdated) {
                 if (wasUpdated) {
-                    notInfo.timeout = resetTimeout(notInfo.id, notInfo.timeout);
+                    notInfo.timeout = resetNotificationTimeout(notInfo.id, notInfo.timeout);
                 }
                 resolve(notInfo);
             });
         });
     })
 };
+
+
+function defer() {
+	var res, rej;
+
+	var promise = new Promise((resolve, reject) => {
+		res = resolve;
+		rej = reject;
+	});
+
+	promise.resolve = res;
+	promise.reject = rej;
+
+	return promise;
+}
 
 
 var oneClickSendToTrello = function (tab, contextInfo) {
@@ -57,6 +72,8 @@ var oneClickSendToTrello = function (tab, contextInfo) {
             }
         }
 
+        var cardPromise = defer();
+
         if (options.showNotification) {
             var newNotification = {
                 title: "Trello card created!",
@@ -69,11 +86,21 @@ var oneClickSendToTrello = function (tab, contextInfo) {
                 ]
             };
 
-            var notificationPromise = new Promise(function(resolve, reject) {
-                chrome.notifications.create(null, newNotification, function(notId) {
-                    var notTimeout = resetTimeout(notId);
-                    resolve({id: notId, timeout: notTimeout});
+            chrome.notifications.create(null, newNotification, function(notId) {
+                createdCards[notId] = cardPromise;
+                resetNotificationTimeout(notId);
+
+                // if card creation fails
+                cardPromise.catch(function(errorText) {
+                    chrome.notifications.update(notId, {
+                        title: "Failed to create card!",
+                        message: (errorText ? "Error: " + errorText : ""),
+                        buttons: []
+                    }, function() {
+                        resetNotificationTimeout(notId);
+                    });
                 });
+                
             });
         }
 
@@ -86,29 +113,8 @@ var oneClickSendToTrello = function (tab, contextInfo) {
             }
 
             if (options.showNotification) {
-                notificationPromise = notificationPromise.then(function(notInfo) {
-                    createdCards[notInfo.id] = card;
-                    return notInfo;
-                });
+                cardPromise.resolve(card);
             }
-
-            // any sort of update to the notification seems to destroy any button functionality under windows 10 native notifications, thus every update information is removed
-            // // update early notification with buttons
-            // notificationPromise = updatePromisedNotification(notificationPromise, {
-            //     buttons: [
-            //         {title: 'Show card...', iconUrl: "icons/hand-o-right.png"},
-            //         {title: 'Delete card', iconUrl: "icons/trash.png"}
-            //     ]
-            // });
-            //
-            // Trello.get('batch', {urls: ['/cards/' + card.id + '/board', '/cards/' + card.id + '/list']}, function(info) {
-            //     var board = info[0][200], list = info[1][200];
-            //
-            //     // update notification with exact board/list information
-            //     notificationPromise = updatePromisedNotification(notificationPromise, {
-            //         message: 'Created card "' + card.name + '" in board "' + board.name + '" on list "' + list.name + '".',
-            //     });
-            // });
         }, function(response) {
             if (options.autoClose) {
                 // try to recover the tab, only try it on the last session that was closed
@@ -120,12 +126,7 @@ var oneClickSendToTrello = function (tab, contextInfo) {
                 });
             }
 
-            // notify of error in card creation
-            notificationPromise = updatePromisedNotification(notificationPromise, {
-                title: "Failed to create card!",
-                message: (response.responseText ? "Error: " + response.responseText : ""),
-                buttons: []
-            });
+            cardPromise.reject(response.responseText);
         });
     });
 };
@@ -135,9 +136,7 @@ var oneClickSendToTrello = function (tab, contextInfo) {
 buttonListener = function(notificationId, buttonIndex, retries) {
     if (typeof(retries)==='undefined') retries = 0;
 
-    var card = createdCards[notificationId];
-
-    if (card) {
+    var cardPromise = createdCards[notificationId].then(function(card) {
         if (buttonIndex === 0) {
             chrome.tabs.create({url: card.url});
             chrome.notifications.clear(notificationId);
@@ -145,11 +144,7 @@ buttonListener = function(notificationId, buttonIndex, retries) {
             Trello.put('cards/' + card.id, {closed: true});
             chrome.notifications.clear(notificationId);
         }
-    } else if (retries < 10) {
-        // card could still be processing since the button has to be displayed immediately with Win10 native notifications
-        // retry after a few ms
-        setTimeout(function(){buttonListener(notificationId, buttonIndex, retries+1)}, 500)
-    }
+    }, () => {});   
 };
 chrome.notifications.onButtonClicked.addListener(buttonListener);
 
@@ -188,6 +183,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             if (!chrome.runtime.lastError && result[0].length > 0) {
                 info.selectionText = result[0];
             }
+            info.selectionText = info.selectionText.replace("\n", "\n\n");
             oneClickSendToTrello(tab, info);
         });
     } else if (info.menuItemId.startsWith(contextMenuId)) {
