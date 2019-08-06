@@ -183,7 +183,8 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             if (!chrome.runtime.lastError && result[0].length > 0) {
                 info.selectionText = result[0];
             }
-            info.selectionText = info.selectionText.replace("\n", "\n\n");
+            info.selectionText = info.selectionText.replace(/(\r\n|\n|\r)/gm, "\n\n");
+            console.log(info.selectionText);
             oneClickSendToTrello(tab, info);
         });
     } else if (info.menuItemId.startsWith(contextMenuId)) {
