@@ -93,6 +93,12 @@ var flashSavedText = function() {
     $('#saved').stop().css('opacity', 1).fadeTo(1500, 0);
 };
 
+function getChromeVersion () {
+    var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+
+    return raw ? parseInt(raw[2], 10) : false;
+}
+
 var init = function(savedOptions) {
     $('#login').click(login);
     $('#logout').click(logout);
@@ -130,6 +136,10 @@ var init = function(savedOptions) {
         $('main').toggle(true);
 
         loadBoards(savedOptions.boardId, savedOptions.listId);
+
+        if (getChromeVersion() === 78) {
+            $('#chrome78warning').toggle(true);
+        }
     }
 
     update_buttons();
