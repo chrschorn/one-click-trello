@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "One-click send to Trello",
   "description": "Save the current page with only one click on the extension button.",
-  "version": "2.4",
+  "version": "2.5",
   "background": {
     "scripts": [
       "js/lib/jquery-3.2.1.min.js",
