@@ -105,6 +105,7 @@ var init = function(savedOptions) {
 
     $boardSelect = $('#boardSelect');
     $listSelect = $('#listSelect');
+    var $includeCover = $('#includeCoverImage');
     var $autoClose = $('#autoClose');
     var $showNotification = $('#showNotification');
     var $selectionAsTitle = $('#selectionAsTitle');
@@ -115,6 +116,10 @@ var init = function(savedOptions) {
         });
         $listSelect.change(function() {
             saveChoice();
+        });
+        $includeCover.change(function() {
+            storage.set({includeCover: $includeCover.is(":checked")});
+            flashSavedText();
         });
         $autoClose.change(function() {
             storage.set({autoClose: $autoClose.is(":checked")});
@@ -129,6 +134,7 @@ var init = function(savedOptions) {
             flashSavedText();
         })
 
+        $includeCover.prop('checked', savedOptions.includeCover).prop('disabled', false);
         $autoClose.prop('checked', savedOptions.autoClose).prop('disabled', false);
         $showNotification.prop('checked', savedOptions.showNotification).prop('disabled', false);
         $selectionAsTitle.prop('checked', savedOptions.showNotification).prop('disabled', false);

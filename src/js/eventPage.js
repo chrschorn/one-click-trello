@@ -101,6 +101,10 @@ var oneClickSendToTrello = function (tab, contextInfo, withLink=true) {
                 }
             }
 
+            if (!options.includeCover) {
+                Trello.delete('cards/' + card.id + '/attachments/' + card.idAttachmentCover);
+            }
+
             cardPromise.resolve(card);
         }, function(response) {
             if (options.autoClose) {
