@@ -24,7 +24,7 @@ function defer() {
 }
 
 
-var oneClickSendToTrello = function (tab, contextInfo) {
+var oneClickSendToTrello = function (tab, contextInfo, withLink=true) {
     // try to login, if not possible: open options page to login
     if (!trelloApi.tryAuthorize()) {
         chrome.runtime.openOptionsPage();
@@ -55,6 +55,10 @@ var oneClickSendToTrello = function (tab, contextInfo) {
             } else {
                 newCard.desc = contextInfo.selectionText;
             }
+        }
+
+        if (!withLink) {
+            newCard.urlSource = null;
         }
 
         var cardPromise = defer();
@@ -142,11 +146,16 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 chrome.runtime.onInstalled.addListener(function() {
     chrome.contextMenus.create({
         id: contextMenuId,
-        title: "Send to Trello",
+        title: "Send page to Trello",
         contexts: ["page", "frame", "link", "editable", "video", "audio", "browser_action", "page_action"]}
     );
     chrome.contextMenus.create({
         id: contextMenuId + "Selection",
+        title: "Send selection+page to Trello",
+        contexts: ["selection"]}
+    );
+    chrome.contextMenus.create({
+        id: contextMenuId + "OnlySelection",
         title: "Send selection to Trello",
         contexts: ["selection"]}
     );
@@ -157,17 +166,32 @@ chrome.runtime.onInstalled.addListener(function() {
     );
 });
 
+getSelection = function(info, tab, callback) {
+    chrome.tabs.executeScript(tab.id, {code: 'window.getSelection().toString()'}, function(result) {
+        var selection = info.selectionText;
+
+        if (!chrome.runtime.lastError && result[0].length > 0) {
+            selection = result[0];
+        }
+
+        selection = info.selectionText.replace(/(\r\n|\n|\r)/gm, "\n\n");
+        callback(selection);
+    });
+};
+
 
 // listen to context menu
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
     if (info.menuItemId == contextMenuId + "Selection") {
-        chrome.tabs.executeScript(tab.id, {code: 'window.getSelection().toString()'}, function(result) {
-            if (!chrome.runtime.lastError && result[0].length > 0) {
-                info.selectionText = result[0];
-            }
-
-            info.selectionText = info.selectionText.replace(/(\r\n|\n|\r)/gm, "\n\n");
+        getSelection(info, tab, function(selection) {
+            info.selectionText = selection;
             oneClickSendToTrello(tab, info);
+        });
+    }
+    else if (info.menuItemId == contextMenuId + "OnlySelection") {
+        getSelection(info, tab, function(selection) {
+            info.selectionText = selection;
+            oneClickSendToTrello(tab, info, false);
         });
     } else if (info.menuItemId.startsWith(contextMenuId)) {
         oneClickSendToTrello(tab, info);
