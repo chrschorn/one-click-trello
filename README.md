@@ -23,9 +23,11 @@ This extension is self-contained (i.e. includes all dependencies directly). It u
 
 ### Screenshots
 
-![](doc/usage.png)
-
-![](doc/settings.png)
+<p align="center">
+  <img src="doc/usage.png"> 
+  <br><br>
+  <img height="600" src="doc/settings.png"> 
+</p>
 
 
 ### Contributing
