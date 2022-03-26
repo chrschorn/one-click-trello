@@ -14,7 +14,7 @@ var trelloApi = {
         Trello.setKey(this.key);
         Trello.authorize({
             type: 'redirect', // options: 'popup', 'redirect'
-            name: 'One-click send to Trello',
+            name: 'One-Click Trello',
             persist: true,
             interactive: true,
             scope: {

@@ -1,5 +1,5 @@
 var storage = {
-    location: chrome.storage.local,
+    location: chrome.storage.sync,
     optionNames: ['boardId', 'listId', 'autoClose', 'showNotification', 'selectionAsTitle', 'includeCover'],
     defaults: {autoClose: false, showNotification: true, selectionAsTitle: true, includeCover: true},
     set: function(obj, callback) {

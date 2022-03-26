@@ -1,4 +1,4 @@
-<img align="left" src="doc/storeicon.png"> 
+<img align="left" height=128 src="src/icons/icon256.png">
 
 # One-click send to Trello
 
@@ -24,9 +24,9 @@ This extension is self-contained (i.e. includes all dependencies directly). It u
 ### Screenshots
 
 <p align="center">
-  <img src="doc/usage.png"> 
+  <img src="assets/screenshot_usage.png"> 
   <br><br>
-  <img height="600" src="doc/settings.png"> 
+  <img src="assets/screenshot_settings.png"> 
 </p>
 
 

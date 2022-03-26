@@ -205,13 +205,12 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
 
 // logout here if triggered in options menu
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (!sender.tab) {
-        // message is from extension
-        if (request.deauthorize) {
-            trelloApi.deauthorize();
-            sendResponse({success: true})
-        } else if (request.selection) {
-            oneClickSendToTrello()
-        }
+    if (request.deauthorize) {
+        trelloApi.deauthorize();
+        sendResponse({success: true})
+    } else if (request.selection) {
+        oneClickSendToTrello();
     }
+
+    return true;
 });

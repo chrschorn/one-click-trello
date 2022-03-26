@@ -1,5 +1,4 @@
 var $listSelect, $boardSelect;
-var contentLoaded = false;
 
 var login = function() {
     if (!trelloApi.tryAuthorize()) {
@@ -13,16 +12,9 @@ var logout = function () {
     chrome.runtime.sendMessage({deauthorize: true}, function(response) {
         if (response.success) {
             trelloApi.deauthorize();
-            update_buttons();
-            $('main').toggle(false);
+            location.reload();
         }
     });
-};
-
-var update_buttons = function() {
-    var authorized = Trello.authorized();
-    $('#login').toggle(!authorized);
-    $('#logout').toggle(authorized);
 };
 
 var loadBoards = function (savedBoardId, savedListId) {
@@ -79,25 +71,7 @@ var saveChoice = function() {
         boardId: $boardSelect.children('option:selected').first().data().id,
         listId: $listSelect.children('option:selected').first().data().id
     });
-
-    if (contentLoaded) {
-        // only show "saved" when data was actually changed by the user
-        // saveChoice() is executed also every time the option menu is opened
-        flashSavedText();
-    }
-
-    contentLoaded = true;
 };
-
-var flashSavedText = function() {
-    $('#saved').stop().css('opacity', 1).fadeTo(1500, 0);
-};
-
-function getChromeVersion () {
-    var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
-
-    return raw ? parseInt(raw[2], 10) : false;
-}
 
 var init = function(savedOptions) {
     $('#login').click(login);
@@ -119,19 +93,15 @@ var init = function(savedOptions) {
         });
         $includeCover.change(function() {
             storage.set({includeCover: $includeCover.is(":checked")});
-            flashSavedText();
         });
         $autoClose.change(function() {
             storage.set({autoClose: $autoClose.is(":checked")});
-            flashSavedText();
         });
         $showNotification.change(function() {
             storage.set({showNotification: $showNotification.is(":checked")});
-            flashSavedText();
         });
         $selectionAsTitle.change(function() {
             storage.set({selectionAsTitle: $selectionAsTitle.is(":checked")});
-            flashSavedText();
         })
 
         $includeCover.prop('checked', savedOptions.includeCover).prop('disabled', false);
@@ -142,13 +112,12 @@ var init = function(savedOptions) {
         $('main').toggle(true);
 
         loadBoards(savedOptions.boardId, savedOptions.listId);
-
-        if (getChromeVersion() === 78) {
-            $('#chrome78warning').toggle(true);
-        }
     }
 
-    update_buttons();
+    var authorized = Trello.authorized();
+    $('#optionsSection').toggle(authorized);
+    $('#logoutSection').toggle(authorized);
+    $('#loginSection').toggle(!authorized);
 };
 
 $(document).ready(function() {

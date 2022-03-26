@@ -1,85 +1,217 @@
-<!doctype html>
-<html lang="en">
-<head>
+<!DOCTYPE html>
+<html>
+  <head>
     <meta charset="utf-8">
-
-    <title>One-click send to Trello - Settings</title>
-
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
-    <link href="../css/settings.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>One-Click Trello</title>
+    <link rel="stylesheet" href="/css/bulma.min.css">
+    <link rel="stylesheet" href="/css/bulma-switch.min.css">
+    <link rel="stylesheet" href="/css/fontawesome/css/all.min.css">
 
     <script src="../js/lib/jquery-3.2.1.min.js"></script>
-    <script src="../js/lib/popper.min.js"></script>
-    <script src="../js/lib/bootstrap.min.js"></script>
+
     <script src="../js/lib/trelloClient.js"></script>
     <script src="../js/trelloWrapper.js"></script>
     <script src="../js/store.js"></script>
     <script src="../js/settings.js"></script>
-</head>
+  </head>
+  <body>
 
-<body>
-
-<div class="container">
-    <main role="main" class="">
-        <div class="row">
-            <div class="col-12"><h1>Save location</h1></div>
-            <div class="col-12">
-                Select where to save the current page when you click on the extension icon or the context menu button.
-            </div>
-            <div class="col-12" id="chrome78warning" style="display:none;color:red">
-                You are using Chrome Version 78 which has a bug preventing you from selecting the board/list via mouse (no dropdown will show). Instead, please click on the individual dropdown and choose the board/list with the arrow up/down keys! (This has been fixed for Chrome Version 79)
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-6">
-                <label for="boardSelect">Board</label>
-                <select class="" id="boardSelect" disabled>
-                    <option>Loading...</option>
-                </select>
-            </div>
-
-            <div class="col-6">
-                <label for="listSelect">List</label>
-                <select class="" id="listSelect" disabled>
-                    <option>Loading...</option>
-                </select>
-            </div>
-        </div>
-
-        <hr>
-
-        <div class="row">
-            <div class="col-12">
-                <h1>Settings</h1>
-
-                <div class="row">
-                    <div class="col-12"><h2>On card creation</h2></div>
-                    <div class="col-12"><label><input id="includeCoverImage" class="" type="checkbox" value="" disabled> Include cover image</label></div>
-                    <div class="col-12"><label><input id="autoClose" class="" type="checkbox" value="" disabled> Close the tab</label></div>
-                    <div class="col-12"><label><input id="showNotification" class="" type="checkbox" value="" disabled> Show a confirmation notification</label></div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12"><h2>Right-click / context menu</h2></div>
-                    <div class="col-12"><label><input id="selectionAsTitle" class="" type="checkbox" value="" disabled> Use selected text as the card title (instead of description)</label></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="saved" class="alert alert-success">
-            <strong>Saved!</strong>
-        </div>
-
-    </main>
-
-    <div id="loginRow" class="row">
-        <div class="col-4 offset-4 text-center">
-            <button type="button" id="login">Login</button>
-            <button type="button" id="logout">Logout</button>
-        </div>
+  <nav class="navbar is-spaced is-light" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <img src="/icons/icon256.png">
+      </div>
+      <div class="navbar-item">
+        <h1 class="title">
+          One-Click Trello
+        </h1>
+      </div>
     </div>
-</div>
+  
 
-</body>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <a class="button is-outlined" href="https://chrome.google.com/webstore/detail/one-click-trello/khhjgfllkgcfhhgocmiaknngnjncdbjm" target="_blank">
+            <span class="icon "><i class="fa-brands fa-chrome"></i></span>
+            <span>Chrome Web Store</span>
+          </a>
+        </div>
+        <div class="navbar-item">
+          <a class="button is-outlined" href="https://github.com/chrschorn/one-click-trello" target="_blank">
+            <span class="icon "><i class="fa-brands fa-github"></i></span>
+            <span>GitHub</span>
+          </a>
+        </div>
+      </div>
+  </nav>
+
+  <section id="optionsSection" class="section" style="display:none">
+    <div class="container is-max-desktop">
+      <div class="columns">
+
+        <div class="column">
+          <div class="block">
+            <h4 class="title is-4">
+                Card Settings
+            </h4>
+            <p class="subtitle">
+                Choose what happens when when you click on the extension icon or use the right-click menu
+            </p>
+
+            <div class="columns">
+              <div class="column">
+                <div class="field">
+                  <label class="label">Target Board</label>
+                  <div class="control">
+                    <div class="select is-fullwidth">
+                      <select id="boardSelect">
+                        <option>Loading...</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="column">
+                <div class="field">
+                  <label class="label">Target List</label>
+                  <div class="control">
+                    <div class="select is-fullwidth">
+                      <select id="listSelect">
+                        <option>Loading...</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+            <div class="field is-horizontal">
+              <div class="field-label is-normal mt-2">
+                <label class="label">Cover Image</label>
+              </div>
+              <div class="field-body">
+                <div class="field">
+                  <div class="control">
+                    <input id="includeCoverImage" type="checkbox" name="switchRoundedDefault" class="switch is-rounded" disabled>
+                    <label for="includeCoverImage">Include cover image</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field is-horizontal">
+              <div class="field-label is-normal mt-2">
+                <label class="label">Selection</label>
+              </div>
+              <div class="field-body">
+                <div class="field">
+                  <div class="control">
+                    <input id="selectionAsTitle" type="checkbox" name="switchRoundedDefault" class="switch is-rounded" disabled>
+                    <label for="selectionAsTitle">Use selected text as the card title (instead of description)</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="block pt-4">
+            <h4 class="title is-4">
+              Side Effects
+            </h4>
+            <p class="subtitle">
+              Clicking the extension button can also have the following side effects
+            </p>
+
+            <div class="field is-horizontal">
+              <div class="field-label is-normal mt-2">
+                <label class="label">Notifications</label>
+              </div>
+              <div class="field-body">
+                <div class="field">
+                  <div class="control">
+                    <input id="showNotification" type="checkbox" name="switchRoundedDefault" class="switch is-rounded">
+                    <label for="showNotification">Show notification on card creation</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field is-horizontal">
+              <div class="field-label is-normal mt-2">
+                <label class="label">Tab</label>
+              </div>
+              <div class="field-body">
+                <div class="field">
+                  <div class="control">
+                    <input id="autoClose" type="checkbox" name="switchRoundedDefault" class="switch is-rounded">
+                    <label for="autoClose">Close current tab on card creation</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="column is-one-quarter is-offset-1">
+          <article class="message is-info">
+            <div class="message-header">
+              <p>Problems, Suggestions?</p>
+            </div>
+            <div class="message-body">
+              Please submit feedback on the <a href="https://chrome.google.com/webstore/detail/one-click-trello/khhjgfllkgcfhhgocmiaknngnjncdbjm/support" target="_blank">Chrome web store</a> or on <a href="https://github.com/chrschorn/one-click-trello" target="_blank">GitHub</a>!
+            </div>
+          </article>
+          <article class="message is-link">
+            <div class="message-header">
+              <p>Tip Jar</p>
+            </div>
+            <div class="message-body has-text-centered">
+              
+              <a class="button is-rounded is-link" href="https://www.paypal.com/donate/?hosted_button_id=C3YU73RKFVCHG">
+                <span class="icon"><i class="fa-solid fa-mug-hot"></i></span>
+                <span>Buy me a coffee</span>
+              </a>
+            </div>
+          </article>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="logoutSection" class="section" style="display:none">
+    <div class="container is-max-desktop has-text-centered">
+      <button id="logout" class="button is-outlined">Logout</button>
+    </div>
+  </section>
+
+  <section id="loginSection" class="section" style="display:none">
+    <div class="container is-max-desktop">
+      <article class="message is-info">
+        <div class="message-header">
+          <p>Login Required</p>
+        </div>
+        <div class="message-body">
+          <div class="block">
+            Please login to Trello to use the extension. You're either logging in for the first time or your previous authentication has expired.
+          </div>
+          <div class="block">
+            <strong>Note:</strong> A new secure browser window will open in which you'll have to login to Trello. Afterwards, you'll be asked to grant permission to this extension to create cards on your behalf - in one click :) All data is either stored locally or in your browser's cloud-synced storage (if enabled by you). Please accept in order for this extension to work!
+          </div>
+        </div>
+      </article>
+      <div class="block has-text-centered">
+        <button id="login" class="button is-primary is-large js-modal-trigger" data-target="modal-js-example">
+          Login
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  </body>
 </html>
