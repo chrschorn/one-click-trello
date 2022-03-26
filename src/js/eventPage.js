@@ -70,8 +70,8 @@ var oneClickSendToTrello = function (tab, contextInfo, withLink=true) {
                 iconUrl: "icons/icon256.png",
                 type: "basic",
                 buttons: [
-                    {title: 'Show card...', iconUrl: "icons/hand-o-right.png"},
-                    {title: 'Delete card', iconUrl: "icons/trash.png"}
+                    {title: 'Show card...'},
+                    {title: 'Delete card'}
                 ]
             };
 
