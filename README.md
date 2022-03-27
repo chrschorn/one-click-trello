@@ -1,14 +1,14 @@
 <img align="left" height=128 src="src/icons/icon256.png">
 
-# One-click send to Trello
+# One-Click Trello
 
-*One-click send to Trello* is an open source Chrome extension that simplifies creating a Trello card from a website. It's available on the [Chrome Web Store](https://chrome.google.com/webstore/detail/one-click-send-to-trello/khhjgfllkgcfhhgocmiaknngnjncdbjm). 
+*One-Click Trello* is an open source Chrome extension that simplifies creating a Trello card from a website. It's available on the [Chrome Web Store](https://chrome.google.com/webstore/detail/one-click-trello/khhjgfllkgcfhhgocmiaknngnjncdbjm). 
 
 This extension simplifies using Trello by making certain actions just one click away. If you regularily save links or text from websites you visit to a Trello card on a specific board and list, then this extension does this for you in a single click!
 
 ## Installation
 
-1. Go to the [Chrome Web Store Page](https://chrome.google.com/webstore/detail/one-click-send-to-trello/khhjgfllkgcfhhgocmiaknngnjncdbjm)
+1. Go to the [Chrome Web Store Page](https://chrome.google.com/webstore/detail/one-click-trello/khhjgfllkgcfhhgocmiaknngnjncdbjm)
 2. Install the extension
 3. Click the extension button, which will take you to the Trello authentication page
 
