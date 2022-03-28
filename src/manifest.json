@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "One-Click Trello",
   "description": "Instantly create a new Trello card with a link to the current page in just one click!",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "background": {
     "scripts": [
       "js/lib/jquery-3.2.1.min.js",
