@@ -18,7 +18,7 @@ User feedback upon clicking the extension button is immediate, even though the a
 
 Several settings based on user feedback (see Chrome Store) and common use cases are available (see screenshots).
 
-This extension is self-contained (i.e. includes all dependencies directly). It uses bootstrap and jQuery for the settings page, but is otherwise written in pure javascript using the Trello JS API provided by Trello.
+This extension is self-contained (i.e. includes all dependencies directly). It uses Bulma and jQuery for the settings page, but is otherwise written in pure javascript using the Trello JS API provided by Trello.
 
 
 ### Screenshots

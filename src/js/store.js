@@ -1,23 +1,79 @@
-var storage = {
+export const storage = {
     location: chrome.storage.local,
-    optionNames: ['boardId', 'listId', 'autoClose', 'showNotification', 'selectionAsTitle', 'includeCover'],
-    defaults: {autoClose: false, showNotification: true, selectionAsTitle: true, includeCover: true},
-    set: function(obj, callback) {
-        this.location.set(obj, callback);
+    defaults: {
+        autoClose: false, 
+        showNotification: true, 
+        cardTitle: 'selectedText', 
+        includeCover: true,
+        listPosition: 'bottom',
+        boardId: null,
+        listId: null
     },
-    loadOptions: function(callback) {
-        var self = this;
-        self.location.get(self.optionNames, function(storedOptions) {
-            // set default values if no value exists (undefined)
-            $.each(self.defaults, function(key, val) {
-                if (storedOptions[key] === undefined) {
-                    storedOptions[key] = self.defaults[key];
+    set: function(obj) {
+        return new Promise ((resolve, reject) => {
+            storage.location.set(obj, function() {
+                if (chrome.runtime.lastError) {
+                    return reject(chrome.runtime.lastError);
                 }
-            });
-
-            self.set(storedOptions, function() {
-                callback(storedOptions);
+                resolve();
             });
         });
+    },
+    get: function(obj) { 
+        return new Promise ((resolve, reject) => {
+            storage.location.get(obj, function(result) {
+                if (chrome.runtime.lastError) {
+                    return reject(chrome.runtime.lastError);
+                }
+                resolve(result);
+            });
+        });
+    },
+    remove: function(obj) { 
+        return new Promise ((resolve, reject) => {
+            storage.location.remove(obj, function(result) {
+                if (chrome.runtime.lastError) {
+                    return reject(chrome.runtime.lastError);
+                }
+                resolve(result);
+            });
+        });
+    },
+    loadOptions: async function() {
+        var self = this;
+        const storedOptions = await self.location.get(Object.keys(self.defaults));
+
+        // set default values if no value exists (undefined)
+        for (const [key, value] of Object.entries(self.defaults)) {
+            if (storedOptions[key] === undefined) {
+                storedOptions[key] = value;
+            }
+        };
+
+        // set all values again in case defaults were not set in storage yet
+        await self.set(storedOptions);
+        return storedOptions;
+    },
+    local: {
+        set: function(obj) {
+            return new Promise ((resolve, reject) => {
+                chrome.storage.local.set(obj, function() {
+                    if (chrome.runtime.lastError) {
+                        return reject(chrome.runtime.lastError);
+                    }
+                    resolve(obj);
+                });
+            });
+        },
+        get: function(obj) { 
+            return new Promise ((resolve, reject) => {
+                chrome.storage.local.get(obj, function(result) {
+                    if (chrome.runtime.lastError) {
+                        return reject(chrome.runtime.lastError);
+                    }
+                    resolve(result);
+                });
+            });
+        },
     }
 };

@@ -8,12 +8,8 @@
     <link rel="stylesheet" href="/css/bulma-switch.min.css">
     <link rel="stylesheet" href="/css/fontawesome/css/all.min.css">
 
-    <script src="../js/lib/jquery-3.2.1.min.js"></script>
-
-    <script src="../js/lib/trelloClient.js"></script>
-    <script src="../js/trelloWrapper.js"></script>
-    <script src="../js/store.js"></script>
-    <script src="../js/settings.js"></script>
+    <script src="/js/lib/jquery-3.2.1.min.js"></script>
+    <script src="/js/options.js"></script>
   </head>
   <body>
 
@@ -86,6 +82,48 @@
                 </div>
               </div>
             </div>
+
+            <div class="field is-horizontal">
+              <div class="field-label is-normal">
+                <label class="label">Position</label>
+              </div>
+              <div class="field-body">
+                <div class="field">
+                  <div class="control">
+                    <div class="select is-fullwidth">
+                      <select id="listPosition">
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p class="help">
+                    Determines where new cards will show up with the list.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="field is-horizontal">
+              <div class="field-label is-normal">
+                <label class="label">Task Title</label>
+              </div>
+              <div class="field-body">
+                <div class="field">
+                  <div class="control">
+                    <div class="select is-fullwidth">
+                      <select id="cardTitle">
+                        <option value="tabTitle">Tab Title</option>
+                        <option value="selectedText">Selected Text</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p class="help">
+                    "Selected text" only works when using the right-click menu to create tasks.
+                  </p>
+                </div>
+              </div>
+            </div>
           
             <div class="field is-horizontal">
               <div class="field-label is-normal mt-2">
@@ -101,19 +139,7 @@
               </div>
             </div>
 
-            <div class="field is-horizontal">
-              <div class="field-label is-normal mt-2">
-                <label class="label">Selection</label>
-              </div>
-              <div class="field-body">
-                <div class="field">
-                  <div class="control">
-                    <input id="selectionAsTitle" type="checkbox" name="switchRoundedDefault" class="switch is-rounded" disabled>
-                    <label for="selectionAsTitle">Use selected text as the card title (instead of description)</label>
-                  </div>
-                </div>
-              </div>
-            </div>
+
 
           </div>
 
